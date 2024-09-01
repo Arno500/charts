@@ -341,9 +341,9 @@ spec:
 {{- end }}
 - name: healthz
   containerPort: {{ .Values.controller.healthzPort }}
-{{- range $key, $value := .Values.controller.tcp }}
-- name: "{{ $key }}-tcp"
-  containerPort: {{ $key }}
+{{- range $port := concat (keys .Values.controller.tcp) .Values.controller.daemonset.hostPorts.tcp | uniq }}
+- name: "{{ $port }}-tcp"
+  containerPort: {{ $port }}
   protocol: TCP
   {{- if eq $.Values.controller.kind "DaemonSet" }}
     {{- if $.Values.controller.daemonset.hostIP }}
@@ -351,8 +351,8 @@ spec:
     {{- end }}
     {{- if $.Values.controller.daemonset.useHostPort }}
       {{- range $p := $.Values.controller.daemonset.hostPorts.tcp }}
-        {{- if eq $key $p }}
-  hostPort: {{ $key }}
+        {{- if eq $port $p }}
+  hostPort: {{ $port }}
         {{- end }}
       {{- end }}
     {{- end }}
